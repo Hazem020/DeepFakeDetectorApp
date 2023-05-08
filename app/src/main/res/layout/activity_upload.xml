@@ -11,7 +11,7 @@
         android:id="@+id/upload_video"
         android:layout_width="340dp"
         android:layout_height="60dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="36dp"
         android:background="@drawable/border"
         android:clickable="true"
         android:drawablePadding="5dp"
@@ -31,7 +31,7 @@
         android:id="@+id/upload_bt"
         android:layout_width="340dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="48dp"
         android:backgroundTint="#0096FF "
         android:elevation="10dp"
         android:fontFamily="@font/poppins_bold"
@@ -41,14 +41,13 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/Upload_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="TODO"
         app:layout_constraintBottom_toBottomOf="@+id/upload_video"
         app:layout_constraintEnd_toEndOf="@+id/upload_video"
         app:layout_constraintHorizontal_bias="0.09"
@@ -90,6 +89,20 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.72" />
+        app:layout_constraintVertical_bias="0.78" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="@font/poppins"
+        android:text="@string/upload_instruction"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/upload_bt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/upload_video"
+        app:layout_constraintVertical_bias="0.084" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
