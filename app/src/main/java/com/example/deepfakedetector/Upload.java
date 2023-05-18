@@ -3,7 +3,6 @@ package com.example.deepfakedetector;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -25,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -70,7 +68,7 @@ public class Upload extends AppCompatActivity {
     }
 
     void connectServer(View v) throws FileNotFoundException, NullPointerException {
-        String ipv4Address = "192.168.1.19";
+        String ipv4Address = "192.168.1.5";
         String portNumber = "4000";
         String postUrl = "http://" + ipv4Address + ":" + portNumber + "/";
 
@@ -88,7 +86,7 @@ public class Upload extends AppCompatActivity {
             }
 
             @Override
-            public long contentLength() throws IOException {
+            public long contentLength() {
                 return fileSize;
             }
 
@@ -108,13 +106,12 @@ public class Upload extends AppCompatActivity {
     void postRequest(String postUrl, RequestBody postBody) {
 
         OkHttpClient client = new OkHttpClient();
-
         Request request = new Request.Builder().url(postUrl).post(postBody).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                System.out.println(e.toString());
+                System.out.println(e);
                 // Cancel the post on failure.
                 call.cancel();
                 runOnUiThread(new Runnable() {
@@ -130,32 +127,28 @@ public class Upload extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull final Response response) throws IOException {
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                String model_response = response.body().string();
+                JsonObject jsonObject = new JsonParser().parse(model_response).getAsJsonObject();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+                        String prediction;
                         try {
-                            ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                            String model_response = response.body().string();
-                            JsonObject jsonObject = new JsonParser().parse(model_response).getAsJsonObject();
-                            String prediction;
-                            try {
-                                prediction = jsonObject.get("prediction_label").getAsString();
-                            } catch (Exception e) {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(getApplicationContext(), "Error processing this video!", Toast.LENGTH_LONG).show();
-                                return;
-                            }
-                            //System.out.println(prediction);
-                            Intent intent = new Intent(Upload.this, Result.class);
-                            intent.putExtra("prediction", prediction);
-                            System.out.println(selectedPath);
-                            intent.putExtra("selectedUri", selectedUri.toString());
-                            startActivity(intent);
-                            System.out.println(prediction);
-                            progressBar.setVisibility(View.INVISIBLE);
+                            prediction = jsonObject.get("prediction_label").getAsString();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(getApplicationContext(), "Error processing this video!", Toast.LENGTH_LONG).show();
+                            return;
                         }
+                        //System.out.println(prediction);
+                        Intent intent = new Intent(Upload.this, Result.class);
+                        intent.putExtra("prediction", prediction);
+                        System.out.println(selectedPath);
+                        intent.putExtra("selectedUri", selectedUri.toString());
+                        startActivity(intent);
+                        System.out.println(prediction);
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
             }
@@ -177,7 +170,9 @@ public class Upload extends AppCompatActivity {
             Uri uri = data.getData();
             selectedUri = uri;
             selectedPath = getPath(getApplicationContext(), uri);
-            vidPath.setText(selectedPath);
+            if (selectedPath != null) {
+                vidPath.setText(new File(selectedPath).getName());
+            }
         }
     }
 
@@ -211,13 +206,10 @@ public class Upload extends AppCompatActivity {
             else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
-                final String type = split[0];
+               // final String type = split[0];
                 final Uri contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 final String selection = "_id=?";
                 final String[] selectionArgs = new String[]{split[1]};
-               // System.out.println(contentUri);
-               // System.out.println(selection);
-               // System.out.println(Arrays.toString(selectionArgs));
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         }
